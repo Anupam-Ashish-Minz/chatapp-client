@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { z } from "zod";
+	import ChatInput from "./chatinput.svelte";
 
 	const ChatroomSchema = z.object({
 		id: z.number(),
@@ -60,10 +61,12 @@
 		<div>
 			{#each messages as message}
 				<div>
-					{message.user_id} -> {message.body}
+          <h3>{message.user?.name ?? "user " + message.user_id}</h3>
+					<p>{message.body}</p>
 				</div>
 			{/each}
 		</div>
+		<ChatInput />
 	</div>
 </main>
 
