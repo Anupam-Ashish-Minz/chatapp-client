@@ -14,6 +14,13 @@
 		id: z.number(),
 		time: z.string(),
 		body: z.string(),
+		user: z.optional(
+			z.object({
+        id: z.number(),
+				name: z.string(),
+        email: z.string()
+			})
+		),
 		user_id: z.number(),
 		chatroom_id: z.number()
 	});
@@ -41,7 +48,7 @@
 		fetch("http://localhost:4000/api/chatrooms")
 			.then((res) => res.json())
 			.then((data) => {
-        chatrooms = z.array(ChatroomSchema).parse(data);
+				chatrooms = z.array(ChatroomSchema).parse(data);
 				room_selected = data[0].id;
 			});
 	});
