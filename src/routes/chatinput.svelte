@@ -1,13 +1,27 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   let message = "";
+  let socket: WebSocket | undefined;
+
 
   function sendMessage() {
     // TODO change this to websocket later on
-    fetch("http://localhost:4000/api/message")
-      .then(res => res.json())
-      .then(data => console.log(data))
-      .catch(err => console.error(err));
+    // fetch("http://localhost:4000/api/message")
+    //   .then(res => res.json())
+    //   .then(data => console.log(data))
+    //   .catch(err => console.error(err));
+    socket?.send(message)
+    message = "";
   }
+
+  onMount(() => {
+    socket = new WebSocket("ws://localhost:4000/ws/message")
+
+    socket.onmessage = (e) => {
+      console.log(e.data)
+    }
+  })
 </script>
 
 <form on:submit|preventDefault={sendMessage}>
