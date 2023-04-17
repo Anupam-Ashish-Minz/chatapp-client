@@ -4,7 +4,7 @@
 	let password = "";
 
 	function signup() {
-		fetch("http://localhost:4000/api/auth/signup", {
+		fetch("http://localhost:4000/signup", {
 			method: "post",
 			body: JSON.stringify({
 				name: name,

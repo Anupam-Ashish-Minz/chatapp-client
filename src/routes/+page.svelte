@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { z } from "zod";
-	import ChatInput from "./chatinput.svelte";
 
 	const ChatroomSchema = z.object({
 		id: z.number(),
@@ -16,9 +15,9 @@
 		body: z.string(),
 		user: z.optional(
 			z.object({
-        id: z.number(),
+				id: z.number(),
 				name: z.string(),
-        email: z.string()
+				email: z.string()
 			})
 		),
 		user_id: z.number(),
@@ -34,23 +33,52 @@
 	let room_selected = 0;
 
 	function fetchMessages(room_selected: number) {
-		fetch(`http://localhost:4000/api/messages/${room_selected}`)
-			.then((res) => res.json())
+		fetch(`http://localhost:4000/api/messages/${room_selected}`, {
+			method: "get",
+			credentials: "include"
+		})
+			.then((res) => {
+				if (res.status === 401) {
+					alert("login required");
+					// window.location.href = "/login";
+				}
+				return res.json();
+			})
 			.then((data) => (messages = z.array(MessageSchema).parse(data ?? [])))
 			.catch((err) => console.error(err));
 	}
 
 	$: {
-		fetchMessages(room_selected);
+		if (chatrooms.filter((x) => x.id === room_selected).length > 0) {
+			fetchMessages(room_selected);
+		}
 	}
+
+  let message = "";
+  let socket: WebSocket | undefined;
+
+  function sendMessage() {
+    socket?.send(JSON.stringify({
+      "body": message,
+      "chatroom_id": room_selected,
+    }))
+    message = "";
+  }
 
 	onMount(() => {
 		fetch("http://localhost:4000/api/chatrooms")
 			.then((res) => res.json())
 			.then((data) => {
-				chatrooms = z.array(ChatroomSchema).parse(data);
-				room_selected = data[0].id;
+				chatrooms = z.array(ChatroomSchema).parse(data ?? []);
+        room_selected = chatrooms[0].id
 			});
+
+    socket = new WebSocket("ws://localhost:4000/ws/message")
+
+    socket.onmessage = (e) => {
+      messages.push(MessageSchema.parse(JSON.parse(e.data)))
+      messages = messages;
+    }
 	});
 </script>
 
@@ -63,18 +91,25 @@
 			</label>
 		{/each}
 	</div>
-	<div class="message-box">
-		<h2>list of messages</h2>
-		<div>
-			{#each messages as message}
-				<div>
-          <h3>{message.user?.name ?? "user " + message.user_id}</h3>
-					<p>{message.body}</p>
-				</div>
-			{/each}
+	{#if messages.length > 0}
+		<div class="message-box">
+			<h2>list of messages</h2>
+			<div>
+				{#each messages as message}
+					<div>
+						<h3>{message.user?.name ?? "user " + message.user_id}</h3>
+						<p>{message.body}</p>
+					</div>
+				{/each}
+			</div>
+    <form on:submit|preventDefault={sendMessage}>
+      <input type="text" bind:value={message}>
+      <button>send</button>
+    </form>
 		</div>
-		<ChatInput />
-	</div>
+	{:else}
+		<div>loading...</div>
+	{/if}
 </main>
 
 <style>
@@ -94,4 +129,23 @@
 	.message-box {
 		margin-left: 1rem;
 	}
+  form {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    position: absolute;
+    bottom: 1rem;
+  }
+
+  form > input {
+    border-radius: 5px;
+  }
+
+  form > button {
+    border-radius: 5px;
+    background-color: #1C30FF;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+  }
 </style>
