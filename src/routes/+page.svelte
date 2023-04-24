@@ -2,9 +2,11 @@
 	import { onMount } from "svelte";
 	import { z } from "zod";
 
-	const PENDING = 0;
-	const ERROR = 0;
-	const COMPLETED = 0;
+  enum REQUEST_STATUS {
+    PENDING,
+    ERROR,
+    COMPLETED,
+  };
 
 	const ChatroomSchema = z.object({
 		id: z.number(),
@@ -32,7 +34,7 @@
 
 	let chatrooms: Chatroom[] = [];
 	let messages: Message[] = [];
-	let messageStatus = PENDING;
+	let messageStatus = REQUEST_STATUS.PENDING;
 
 	// this value is modified in mount
 	let room_selected = 0;
@@ -51,11 +53,11 @@
 			})
 			.then((data) => {
 				messages = z.array(MessageSchema).parse(data ?? []);
-				messageStatus = COMPLETED;
+				messageStatus = REQUEST_STATUS.COMPLETED;
 			})
 			.catch((err) => {
 				console.error(err);
-				messageStatus = ERROR;
+				messageStatus = REQUEST_STATUS.ERROR;
 			});
 	}
 
@@ -104,7 +106,7 @@
 			</label>
 		{/each}
 	</div>
-	{#if messageStatus === COMPLETED}
+	{#if messageStatus === REQUEST_STATUS.COMPLETED}
 		<div class="message-box">
       {#if messages.length > 0}
         <h2>list of messages</h2>
@@ -124,9 +126,9 @@
 				<button>send</button>
 			</form>
 		</div>
-	{:else if messageStatus === PENDING}
+	{:else if messageStatus === REQUEST_STATUS.PENDING}
 		<div>loading...</div>
-	{:else if messageStatus === ERROR}
+	{:else if messageStatus === REQUEST_STATUS.ERROR}
 		<div>something went wrong</div>
 	{:else}
 		<div>server responded with error</div>
