@@ -101,16 +101,16 @@
 	<div class="sidebar">
 		{#each chatrooms as room}
 			{#if room.id === room_selected}
-				<div class="room-selector room-selected">{room.name}</div>
+				<button class="room-selector room-selected">{room.name}</button>
 			{:else}
-				<div
+				<button
 					class="room-selector"
 					on:click={() => {
 						room_selected = room.id;
 					}}
 				>
 					{room.name}
-				</div>
+				</button>
 			{/if}
 		{/each}
 	</div>
@@ -185,6 +185,10 @@
 	}
 
 	.room-selector {
+    background-color: transparent;
+    text-align: start;
+    color: inherit;
+    border: none;
 		padding: 1rem 2rem 1rem 2rem;
 		margin-right: 0.5rem;
 		border-radius: 5px;
