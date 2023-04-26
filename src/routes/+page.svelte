@@ -117,8 +117,8 @@
 	{#if messageStatus === REQUEST_STATUS.COMPLETED}
 		<div class="message-box">
 			{#if messages.length > 0}
-				<h2>list of messages</h2>
-				<div>
+				<div class="message-list">
+          <h2>list of messages</h2>
 					{#each messages as message}
 						<div>
 							<h3>{message.user?.name ?? "user " + message.user_id}</h3>
@@ -129,7 +129,7 @@
 			{:else}
 				<h2>Enter the first message</h2>
 			{/if}
-			<form on:submit|preventDefault={sendMessage}>
+			<form on:submit|preventDefault={sendMessage} class="chatbox">
 				<input type="text" bind:value={message} />
 				<button>send</button>
 			</form>
@@ -149,6 +149,7 @@
 		grid-template-columns: 1fr 5fr;
 		height: calc(100vh - 3.5rem);
 	}
+
 	.sidebar {
 		background-color: #222;
 		color: white;
@@ -157,14 +158,32 @@
 		display: flex;
 		flex-direction: column;
 	}
+
 	.message-box {
 		padding-left: 1rem;
-		max-height: 80vh;
-		overflow: auto;
-		border: 1px solid black;
-		border-radius: 5px;
+    position: relative;
 	}
-	form {
+
+	.message-list {
+    --offset: 10rem;
+		--mask: linear-gradient(
+				to bottom,
+				rgba(0, 0, 0, 1) 0,
+				rgba(0, 0, 0, 1) 80%,
+				rgba(0, 0, 0, 0) 95%,
+				rgba(0, 0, 0, 0) 0
+			)
+			100% 50% / 100% 100% repeat-x;
+
+		overflow: auto;
+		height: calc(90vh - var(--offset));
+    padding-bottom: var(--offset);
+
+		-webkit-mask: var(--mask);
+		mask: var(--mask);
+	}
+
+	.chatbox {
 		display: flex;
 		flex-direction: row;
 		gap: 1rem;
@@ -172,28 +191,32 @@
 		bottom: 1rem;
 	}
 
-	form > input {
+	.chatbox > input {
 		border-radius: 5px;
+		width: 70vw;
+		border: 1px solid rgba(0, 0, 0, 0.5);
+		padding: 0.5rem;
 	}
 
-	form > button {
+	.chatbox > button {
 		border-radius: 5px;
 		background-color: #1c30ff;
 		border: none;
 		color: white;
-		padding: 0.5rem 1rem 0.5rem 1rem;
+		/* padding: 0.5rem 1rem 0.5rem 1rem; */
+		padding-left: 2rem;
+		padding-right: 2rem;
 	}
 
 	.room-selector {
-    background-color: transparent;
-    text-align: start;
-    color: inherit;
-    border: none;
+		background-color: transparent;
+		text-align: start;
+		color: inherit;
+		border: none;
 		padding: 1rem 2rem 1rem 2rem;
 		margin-right: 0.5rem;
 		border-radius: 5px;
-    user-select: none;
-    cursor: pointer;
+		cursor: pointer;
 	}
 
 	.room-selected {
