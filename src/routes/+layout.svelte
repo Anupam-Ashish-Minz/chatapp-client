@@ -8,7 +8,7 @@
 <style>
 	nav {
 		padding: 1rem;
-		background-color: #222;
+		background-color: #000;
 		color: white;
 		display: flex;
 		flex-direction: flex-start;

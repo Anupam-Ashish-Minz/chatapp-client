@@ -2,11 +2,11 @@
 	import { onMount } from "svelte";
 	import { z } from "zod";
 
-  enum REQUEST_STATUS {
-    PENDING,
-    ERROR,
-    COMPLETED,
-  };
+	enum REQUEST_STATUS {
+		PENDING,
+		ERROR,
+		COMPLETED
+	}
 
 	const ChatroomSchema = z.object({
 		id: z.number(),
@@ -100,27 +100,35 @@
 <main>
 	<div class="sidebar">
 		{#each chatrooms as room}
-			<label>
-				<input type="radio" bind:group={room_selected} value={room.id} />
-				{room.name}
-			</label>
+			{#if room.id === room_selected}
+				<div class="room-selector room-selected">{room.name}</div>
+			{:else}
+				<div
+					class="room-selector"
+					on:click={() => {
+						room_selected = room.id;
+					}}
+				>
+					{room.name}
+				</div>
+			{/if}
 		{/each}
 	</div>
 	{#if messageStatus === REQUEST_STATUS.COMPLETED}
 		<div class="message-box">
-      {#if messages.length > 0}
-        <h2>list of messages</h2>
-        <div>
-          {#each messages as message}
-            <div>
-              <h3>{message.user?.name ?? "user " + message.user_id}</h3>
-              <p>{message.body}</p>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        <h2>Enter the first message</h2>
-      {/if}
+			{#if messages.length > 0}
+				<h2>list of messages</h2>
+				<div>
+					{#each messages as message}
+						<div>
+							<h3>{message.user?.name ?? "user " + message.user_id}</h3>
+							<p>{message.body}</p>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<h2>Enter the first message</h2>
+			{/if}
 			<form on:submit|preventDefault={sendMessage}>
 				<input type="text" bind:value={message} />
 				<button>send</button>
@@ -142,7 +150,7 @@
 		height: calc(100vh - 3.5rem);
 	}
 	.sidebar {
-		background-color: #333;
+		background-color: #222;
 		color: white;
 		padding-left: 0.5rem;
 		padding-top: 0.5rem;
@@ -174,5 +182,17 @@
 		border: none;
 		color: white;
 		padding: 0.5rem 1rem 0.5rem 1rem;
+	}
+
+	.room-selector {
+		padding: 1rem 2rem 1rem 2rem;
+		margin-right: 0.5rem;
+		border-radius: 5px;
+    user-select: none;
+    cursor: pointer;
+	}
+
+	.room-selected {
+		background-color: #444;
 	}
 </style>
