@@ -3,5 +3,7 @@
 This Project works in conjection with *chatapp-server*
 
 ## Build and run
-`pnpm install
-pnpm run dev`
+```
+pnpm install
+pnpm run dev
+```
