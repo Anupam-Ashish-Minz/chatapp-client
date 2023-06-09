@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount, getContext } from "svelte";
 	import { z } from "zod";
 
 	enum REQUEST_STATUS {
@@ -39,6 +39,8 @@
 	// this value is modified in mount
 	let room_selected = 0;
 
+  const userID: any = getContext("user_id");
+
 	function fetchMessages(room_selected: number) {
 		fetch(`http://localhost:4000/api/messages/${room_selected}`, {
 			method: "get",
@@ -47,7 +49,7 @@
 			.then((res) => {
 				if (res.status === 401) {
 					alert("login required");
-					// window.location.href = "/login";
+					window.location.href = "/login";
 				}
 				return res.json();
 			})
@@ -117,10 +119,10 @@
 	{#if messageStatus === REQUEST_STATUS.COMPLETED}
 		<div class="message-box">
 			{#if messages.length > 0}
+        <h2>list of messages</h2>
 				<div class="message-list">
-          <h2>list of messages</h2>
 					{#each messages as message}
-						<div>
+						<div class={`message-container ${$userID !== message.user_id ? "other-user-message-container" : "my-message-container"}`}>
 							<h3>{message.user?.name ?? "user " + message.user_id}</h3>
 							<p>{message.body}</p>
 						</div>
@@ -164,6 +166,12 @@
     position: relative;
 	}
 
+  .message-box h2 {
+    margin-bottom: 3rem;
+    margin-top: 2rem;
+    text-align: center;
+  }
+
 	.message-list {
     --offset: 10rem;
 		--mask: linear-gradient(
@@ -181,7 +189,41 @@
 
 		-webkit-mask: var(--mask);
 		mask: var(--mask);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-right: 1rem;
+    align-items: flex-start;
+    /* max-width: 50rem; */
 	}
+
+  .message-container {
+    background-color: #eee;
+    border-radius: 10px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    /* width: max-content; */
+    max-width: 50rem;
+    min-width: 6rem;
+  }
+
+  .message-container h3 {
+    padding: 0.5rem;
+    margin: 0;
+  }
+
+  .message-container p {
+    padding: 0.5rem;
+    margin: 0;
+  }
+
+  .other-user-message-container {
+    align-self: flex-end;
+  }
+
+  .my-message-container {
+    background-color: #7bd1ee;
+  }
 
 	.chatbox {
 		display: flex;
